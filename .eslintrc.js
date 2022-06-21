@@ -1,6 +1,7 @@
 module.exports = {
   extends: 'erb',
   rules: {
+    semi: ['error', 'never'],
     // A temporary hack related to IDE not resolving correct package.json
     'import/no-extraneous-dependencies': 'off',
     'import/no-unresolved': 'error',
@@ -27,4 +28,4 @@ module.exports = {
       '@typescript-eslint/parser': ['.ts', '.tsx'],
     },
   },
-};
+}
