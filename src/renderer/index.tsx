@@ -1,22 +1,21 @@
+import { ThemeProvider } from '@emotion/react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
-import styled from '@emotion/styled'
-
-const Container = styled.div`
-  background-color: red;
-`
-
-const Hello = () => {
-  return <Container>TaskParrot</Container>
-}
+import Layout from './components/Layout'
+import Timeline from './pages/Timeline'
+import Theme from './theme'
 
 const App = () => {
   return (
-    <MemoryRouter>
-      <Routes>
-        <Route path="/" element={<Hello />} />
-      </Routes>
-    </MemoryRouter>
+    <ThemeProvider theme={Theme}>
+      <MemoryRouter>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Timeline />} />
+          </Routes>
+        </Layout>
+      </MemoryRouter>
+    </ThemeProvider>
   )
 }
 

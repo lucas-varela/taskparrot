@@ -1,4 +1,6 @@
 import { Channels } from 'main/preload'
+import '@emotion/react'
+import ProjectTheme from './theme'
 
 declare global {
   interface Window {
@@ -13,6 +15,13 @@ declare global {
       }
     }
   }
+}
+
+type ThemeType = typeof ProjectTheme
+
+declare module '@emotion/react' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  export interface Theme extends ThemeType {}
 }
 
 export {}
