@@ -8,6 +8,8 @@ const Theme = {
     gray: {
       lighter: 'hsla(0, 0%, 90%, 1)',
       light: 'hsla(0, 0%, 85%, 1)',
+      default: 'hsla(0, 0%, 50%, 1)',
+      darker: 'hsla(0, 0%, 20%, 1)',
     },
     white: 'hsla(0, 0%, 100%, 1)',
     black: 'hsla(0, 0%, 0%, 1)',

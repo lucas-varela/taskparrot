@@ -4,7 +4,11 @@ import { HourContainerProps } from './types'
 export const Container = styled.li<HourContainerProps>`
   position: relative;
   height: 120px;
-  border-right: 2px solid ${({ theme }) => theme.colors.gray.light};
+  border-right: 2px solid
+    ${({ theme, isWorkingHour }) =>
+      isWorkingHour ? theme.colors.blue.light : theme.colors.gray.light};
+
+  // TODO: fix first working hour showing wrong border color up
 
   &:not(:last-child) {
     &::before {
@@ -19,7 +23,10 @@ export const Container = styled.li<HourContainerProps>`
       padding: 0.125rem 0.5rem;
       background-color: ${({ theme }) => theme.colors.blue.lightest};
       border-radius: 1rem;
+      font-size: 0.75rem;
       font-weight: 600;
+      color: ${({ theme, isWorkingHour }) =>
+        isWorkingHour ? theme.colors.gray.darker : theme.colors.gray.default};
     }
 
     &::after {
@@ -29,7 +36,8 @@ export const Container = styled.li<HourContainerProps>`
       width: calc(100% - 5rem);
       bottom: -1px;
       right: 0;
-      background-color: ${({ theme }) => theme.colors.gray.light};
+      background-color: ${({ theme, isWorkingHour }) =>
+        isWorkingHour ? theme.colors.blue.light : theme.colors.gray.light};
     }
   }
 `

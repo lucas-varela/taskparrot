@@ -1,5 +1,6 @@
-import { ThemeProvider } from '@emotion/react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { ThemeProvider } from '@emotion/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import Timeline from './pages/Timeline'
@@ -7,15 +8,17 @@ import Theme from './theme'
 
 const App = () => {
   return (
-    <ThemeProvider theme={Theme}>
-      <Layout>
-        <MemoryRouter>
-          <Routes>
-            <Route path="/" element={<Timeline />} />
-          </Routes>
-        </MemoryRouter>
-      </Layout>
-    </ThemeProvider>
+    <StrictMode>
+      <ThemeProvider theme={Theme}>
+        <Layout>
+          <MemoryRouter>
+            <Routes>
+              <Route path="/" element={<Timeline />} />
+            </Routes>
+          </MemoryRouter>
+        </Layout>
+      </ThemeProvider>
+    </StrictMode>
   )
 }
 
