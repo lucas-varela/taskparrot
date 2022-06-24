@@ -1,8 +1,21 @@
 import { FC } from 'react'
-import { Track } from './styles'
+import Hour from 'renderer/components/Hour'
+import { Container, Track, Sidebar } from './styles'
 
 const Timeline: FC = () => {
-  return <Track>Timeline</Track>
+  return (
+    <Container>
+      <Track>
+        {[
+          1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+          21, 22, 23, 24,
+        ].map((h) => (
+          <Hour hour={h} />
+        ))}
+      </Track>
+      <Sidebar />
+    </Container>
+  )
 }
 
 export default Timeline

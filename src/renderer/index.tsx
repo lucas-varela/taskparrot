@@ -8,13 +8,13 @@ import Theme from './theme'
 const App = () => {
   return (
     <ThemeProvider theme={Theme}>
-      <MemoryRouter>
-        <Layout>
+      <Layout>
+        <MemoryRouter>
           <Routes>
             <Route path="/" element={<Timeline />} />
           </Routes>
-        </Layout>
-      </MemoryRouter>
+        </MemoryRouter>
+      </Layout>
     </ThemeProvider>
   )
 }
