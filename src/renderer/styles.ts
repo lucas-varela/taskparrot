@@ -39,7 +39,7 @@ export const createGlobalStyles = (theme: Theme) => {
     }
 
     html {
-      background-color: ${theme.colors.blue.lightest};
+      background-color: ${theme.colors.blue.background};
       font-family: 'Inter', sans-serif;
       font-size: 16px;
       color: ${theme.colors.gray.darker};

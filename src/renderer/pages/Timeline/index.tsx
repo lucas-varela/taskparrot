@@ -19,7 +19,12 @@ const Timeline: FC = () => {
     <Container>
       <Track>
         {dayHours.map((h) => (
-          <Hour key={h} hour={h} isWorkingHour={isWorkingHour(h)} />
+          <Hour
+            key={h}
+            hour={h}
+            isStartingHour={h === workingHoursStart}
+            isWorkingHour={isWorkingHour(h)}
+          />
         ))}
       </Track>
       <Sidebar />

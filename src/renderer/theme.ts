@@ -1,11 +1,14 @@
 const Theme = {
   colors: {
     blue: {
-      lightest: 'hsla(210, 50%, 99%, 1)',
+      background: 'hsla(210, 90%, 99%, 1)',
+      lightest: 'hsla(210, 90%, 95%, 1)',
+      lighter: 'hsla(209, 70%, 85%, 1)',
       light: 'hsla(209, 90%, 75%, 1)',
       default: 'hsla(209, 90%, 55%, 1)',
     },
     gray: {
+      lightest: 'hsla(0, 0%, 95%, 1)',
       lighter: 'hsla(0, 0%, 90%, 1)',
       light: 'hsla(0, 0%, 85%, 1)',
       default: 'hsla(0, 0%, 50%, 1)',
