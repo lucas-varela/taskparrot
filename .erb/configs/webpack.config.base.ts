@@ -4,6 +4,8 @@
 
 import webpack from 'webpack'
 import webpackPaths from './webpack.paths'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore since npm removes empty dependencies object
 import { dependencies as externals } from '../../release/app/package.json'
 
 const configuration: webpack.Configuration = {
