@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { ThemeProvider } from '@emotion/react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
-import Timeline from './pages/Timeline'
+import Home from './pages/Home'
 import Theme from './theme'
 
 const App = () => {
@@ -13,7 +13,7 @@ const App = () => {
         <Layout>
           <MemoryRouter>
             <Routes>
-              <Route path="/" element={<Timeline />} />
+              <Route path="/" element={<Home />} />
             </Routes>
           </MemoryRouter>
         </Layout>

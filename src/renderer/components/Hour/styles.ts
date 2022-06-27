@@ -10,7 +10,7 @@ export const Container = styled.li<HourContainerProps>`
         ? theme.colors.blue.lighter
         : theme.colors.gray.light};
 
-  &:not(:last-child) {
+  &:not(:last-of-type) {
     &::before {
       content: '${({ hour }) => hour}:00';
       display: flex;
@@ -41,23 +41,23 @@ export const Container = styled.li<HourContainerProps>`
       background-color: ${({ theme, isWorkingHour }) =>
         isWorkingHour ? theme.colors.blue.lighter : theme.colors.gray.light};
     }
+  }
 
-    > span {
-      display: block;
-      height: 25%;
-      width: 100%;
+  > span {
+    display: block;
+    height: 25%;
+    width: 100%;
 
-      &:nth-of-type(even) {
-        background: linear-gradient(
-          90deg,
-          ${({ theme }) => theme.colors.blue.background} 5rem,
-          ${({ theme, isStartingHour, isWorkingHour }) =>
-              isWorkingHour && !isStartingHour
-                ? theme.colors.blue.lightest
-                : theme.colors.gray.lightest}
-            100%
-        );
-      }
+    &:nth-of-type(even) {
+      background: linear-gradient(
+        90deg,
+        ${({ theme }) => theme.colors.blue.background} 5rem,
+        ${({ theme, isStartingHour, isWorkingHour }) =>
+            isWorkingHour && !isStartingHour
+              ? theme.colors.blue.lightest
+              : theme.colors.gray.lightest}
+          100%
+      );
     }
   }
 `
