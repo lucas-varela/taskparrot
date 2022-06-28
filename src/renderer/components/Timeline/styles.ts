@@ -12,13 +12,30 @@ export const Track = styled.ol`
   list-style: none;
 `
 
-export const Event = styled.div<any>`
+export const HourTrack = styled.div`
   position: absolute;
-  height: ${({ height }) => height}px;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+`
+
+export const EventTrack = styled.div`
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+`
+
+export const EventComponent = styled.div<any>`
+  position: absolute;
+  height: ${({ start, end }) => end - start}px;
   width: 60%;
-  top: ${({ top }) => top}px;
+  top: ${({ start }) => start}px;
   left: 30%;
   background-color: ${({ theme }) => theme.colors.blue.default};
+  opacity: ${({ isTemporary }) => (isTemporary ? 0.5 : 0.9)};
 `
 
 export const Sidebar = styled.div`

@@ -1,6 +1,21 @@
-import { FC, useRef } from 'react'
-import Hour from 'renderer/components/Hour'
-import { Container, Track, Sidebar, Event } from './styles'
+import {
+  FC,
+  MouseEvent as ReactMouseEvent,
+  useCallback,
+  useRef,
+  useState,
+} from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import Hour from '../Hour'
+import { useEvents, Event } from '../../contexts/EventProvider'
+import {
+  Container,
+  Track,
+  Sidebar,
+  EventComponent,
+  EventTrack,
+  HourTrack,
+} from './styles'
 
 const dayHours = [
   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
@@ -22,40 +37,80 @@ const Timeline: FC = () => {
   // TODO: eventos tem algo tipo size=tiny|small|normal pra usar CSS relativo ao tamanho da tarefa
   // TODO: eventos não podem ter menos que X minutos, tipo 5
   const trackRef = useRef<HTMLOListElement>(null)
-  const events = [{ id: 123, start: 440, end: 560 }]
+  const temporaryRef = useRef<Partial<Event> | null>(null)
+  const [temporaryEvent, setTemporaryEvent] = useState<Partial<Event> | null>(
+    null
+  )
+  temporaryRef.current = temporaryEvent
+  const { events, addEvent } = useEvents()
 
-  const handleMouseMove = (event: MouseEvent) => {
-    console.debug(event)
-  }
+  const handleMouseMove = useCallback((event: MouseEvent) => {
+    const trackTop = trackRef.current?.getBoundingClientRect().y ?? 0
+    const end = Math.abs(trackTop) + event.clientY
 
-  const handleMouseDown = () => {
-    console.debug('mouseDown')
-    window.addEventListener('mousemove', handleMouseMove)
-  }
+    setTemporaryEvent((prev) => ({
+      ...prev,
+      end: Math.max(end, 30),
+      isTemporary: end - (prev?.start ?? 0) < 30,
+    }))
+  }, [])
 
-  const handleMouseUp = () => {
-    console.debug('mouseUp')
+  const handleMouseUp = useCallback(() => {
+    if (!temporaryRef.current?.isTemporary) {
+      addEvent({
+        ...(temporaryRef.current as Event),
+        date: new Date(),
+      })
+    }
+
+    setTemporaryEvent(null)
+
     window.removeEventListener('mousemove', handleMouseMove)
+    window.removeEventListener('mouseup', handleMouseUp)
+  }, [addEvent, handleMouseMove])
+
+  const handleMouseDown = (
+    event: ReactMouseEvent<HTMLOListElement, MouseEvent>
+  ) => {
+    const trackTop = trackRef.current?.getBoundingClientRect().y ?? 0
+    const initial = Math.abs(trackTop) + event.clientY
+
+    setTemporaryEvent({
+      id: uuidv4(),
+      start: initial,
+      end: initial,
+      isTemporary: true,
+    })
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
   }
 
   return (
     <Container>
-      <Track
-        ref={trackRef}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-      >
-        {dayHours.map((h) => (
-          <Hour
-            key={h}
-            hour={h}
-            isStartingHour={h === workingHoursStart}
-            isWorkingHour={isWorkingHour(h)}
-          />
-        ))}
-        {events.map((e) => (
-          <Event key={e.start} height={e.end - e.start} top={e.start} />
-        ))}
+      <Track ref={trackRef} onMouseDown={handleMouseDown}>
+        <HourTrack>
+          {dayHours.map((h) => (
+            <Hour
+              key={h}
+              hour={h}
+              isStartingHour={h === workingHoursStart}
+              isWorkingHour={isWorkingHour(h)}
+            />
+          ))}
+        </HourTrack>
+        <EventTrack>
+          {events.map((e) => (
+            <EventComponent key={e.id} start={e.start} end={e.end} />
+          ))}
+          {temporaryEvent && (
+            <EventComponent
+              start={temporaryEvent.start}
+              end={temporaryEvent.end}
+              isTemporary={temporaryEvent.isTemporary}
+            />
+          )}
+        </EventTrack>
       </Track>
       <Sidebar />
     </Container>

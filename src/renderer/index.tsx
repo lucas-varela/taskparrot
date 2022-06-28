@@ -5,18 +5,21 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import Theme from './theme'
+import EventProvider from './contexts/EventProvider'
 
 const App = () => {
   return (
     <StrictMode>
       <ThemeProvider theme={Theme}>
-        <Layout>
-          <MemoryRouter>
-            <Routes>
-              <Route path="/" element={<Home />} />
-            </Routes>
-          </MemoryRouter>
-        </Layout>
+        <EventProvider>
+          <Layout>
+            <MemoryRouter>
+              <Routes>
+                <Route path="/" element={<Home />} />
+              </Routes>
+            </MemoryRouter>
+          </Layout>
+        </EventProvider>
       </ThemeProvider>
     </StrictMode>
   )
