@@ -26,7 +26,7 @@ export const Container = styled.li<HourContainerProps>`
       font-size: 0.75rem;
       font-weight: 600;
       color: ${({ theme, isWorkingHour }) =>
-        isWorkingHour ? theme.colors.gray.darker : theme.colors.gray.default};
+        isWorkingHour ? theme.colors.gray.darker : theme.colors.gray.regular};
     }
 
     &::after {
