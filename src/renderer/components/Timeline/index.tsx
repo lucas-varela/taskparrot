@@ -6,16 +6,11 @@ import {
   useState,
 } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import { setHours, setMinutes } from 'date-fns'
 import Hour from '../Hour'
-import { useEvents, Event } from '../../contexts/EventProvider'
-import {
-  Container,
-  Track,
-  Sidebar,
-  EventComponent,
-  EventTrack,
-  HourTrack,
-} from './styles'
+import TaskComponent from '../Task'
+import { useTasks, Task } from '../../contexts/TaskProvider'
+import { Container, Track, Sidebar, EventTrack, HourTrack } from './styles'
 
 const dayHours = [
   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,
@@ -36,49 +31,50 @@ const Timeline: FC = () => {
   //  isso obriga eventos a terem no mínimo X minutos
   // TODO: eventos tem algo tipo size=tiny|small|normal pra usar CSS relativo ao tamanho da tarefa
   // TODO: eventos não podem ter menos que X minutos, tipo 5
-  const trackRef = useRef<HTMLOListElement>(null)
-  const temporaryRef = useRef<Partial<Event> | null>(null)
-  const [temporaryEvent, setTemporaryEvent] = useState<Partial<Event> | null>(
-    null
-  )
-  temporaryRef.current = temporaryEvent
-  const { events, addEvent } = useEvents()
+  const trackRef = useRef<HTMLDivElement>(null)
+  const temporaryRef = useRef<Partial<Task> | null>(null)
+  const [temporaryTask, setTemporaryTask] = useState<Partial<Task> | null>(null)
+  temporaryRef.current = temporaryTask
+  const { tasks, addTask } = useTasks()
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
     const trackTop = trackRef.current?.getBoundingClientRect().y ?? 0
-    const end = Math.abs(trackTop) + event.clientY
+    const top = (Math.abs(trackTop) + event.clientY) / 2
+    const hours = Math.floor(top / 60)
+    const minutes = top % 60
+    const end = setHours(setMinutes(new Date(), minutes), hours)
 
-    setTemporaryEvent((prev) => ({
+    setTemporaryTask((prev) => ({
       ...prev,
-      end: Math.max(end, 30),
-      isTemporary: end - (prev?.start ?? 0) < 30,
+      end,
+      // isTemporary: end - (prev?.start ?? 0) < 30,
     }))
   }, [])
 
   const handleMouseUp = useCallback(() => {
-    if (!temporaryRef.current?.isTemporary) {
-      addEvent({
-        ...(temporaryRef.current as Event),
-        date: new Date(),
-      })
-    }
+    addTask({
+      ...(temporaryRef.current as Task),
+    })
 
-    setTemporaryEvent(null)
+    setTemporaryTask(null)
 
     window.removeEventListener('mousemove', handleMouseMove)
     window.removeEventListener('mouseup', handleMouseUp)
-  }, [addEvent, handleMouseMove])
+  }, [addTask, handleMouseMove])
 
   const handleMouseDown = (
-    event: ReactMouseEvent<HTMLOListElement, MouseEvent>
+    event: ReactMouseEvent<HTMLDivElement, MouseEvent>
   ) => {
     const trackTop = trackRef.current?.getBoundingClientRect().y ?? 0
-    const initial = Math.abs(trackTop) + event.clientY
+    const initial = (Math.abs(trackTop) + event.clientY) / 2
+    const hours = Math.floor(initial / 60)
+    const minutes = initial % 60
+    const initialDate = setHours(setMinutes(new Date(), minutes), hours)
 
-    setTemporaryEvent({
+    setTemporaryTask({
       id: uuidv4(),
-      start: initial,
-      end: initial,
+      start: initialDate,
+      end: initialDate,
       isTemporary: true,
     })
 
@@ -100,14 +96,13 @@ const Timeline: FC = () => {
           ))}
         </HourTrack>
         <EventTrack>
-          {events.map((e) => (
-            <EventComponent key={e.id} start={e.start} end={e.end} />
+          {tasks.map((e) => (
+            <TaskComponent key={e.id} start={e.start} end={e.end} />
           ))}
-          {temporaryEvent && (
-            <EventComponent
-              start={temporaryEvent.start}
-              end={temporaryEvent.end}
-              isTemporary={temporaryEvent.isTemporary}
+          {temporaryTask && (
+            <TaskComponent
+              start={temporaryTask.start as Date}
+              end={temporaryTask.end as Date}
             />
           )}
         </EventTrack>

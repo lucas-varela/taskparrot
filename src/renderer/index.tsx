@@ -5,13 +5,13 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import Theme from './theme'
-import EventProvider from './contexts/EventProvider'
+import TaskProvider from './contexts/TaskProvider'
 
 const App = () => {
   return (
     <StrictMode>
       <ThemeProvider theme={Theme}>
-        <EventProvider>
+        <TaskProvider>
           <Layout>
             <MemoryRouter>
               <Routes>
@@ -19,7 +19,7 @@ const App = () => {
               </Routes>
             </MemoryRouter>
           </Layout>
-        </EventProvider>
+        </TaskProvider>
       </ThemeProvider>
     </StrictMode>
   )
