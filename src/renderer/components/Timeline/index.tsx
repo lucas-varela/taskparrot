@@ -6,7 +6,7 @@ import {
   useState,
 } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { setHours, setMinutes } from 'date-fns'
+import { addMinutes, set } from 'date-fns'
 import Hour from '../Hour'
 import TaskComponent from '../Task'
 import { useTasks, Task } from '../../contexts/TaskProvider'
@@ -32,6 +32,7 @@ const Timeline: FC = () => {
   // TODO: eventos tem algo tipo size=tiny|small|normal pra usar CSS relativo ao tamanho da tarefa
   // TODO: eventos não podem ter menos que X minutos, tipo 5
   const trackRef = useRef<HTMLDivElement>(null)
+  const hourTrackRef = useRef<HTMLOListElement>(null)
   const temporaryRef = useRef<Partial<Task> | null>(null)
   const [temporaryTask, setTemporaryTask] = useState<Partial<Task> | null>(null)
   temporaryRef.current = temporaryTask
@@ -39,10 +40,19 @@ const Timeline: FC = () => {
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
     const trackTop = trackRef.current?.getBoundingClientRect().y ?? 0
-    const top = (Math.abs(trackTop) + event.clientY) / 2
+    const top = Math.min(
+      // We divide the sizes by two since 1 minute equals to 2px in the CSS
+      // ceil(X / 15) * 15 makes the task grow in 15 minutes intervals
+      Math.ceil((Math.abs(trackTop) + event.clientY) / 2 / 15) * 15,
+      1440 // Math.min makes sure the task won't pass 00:00:00 of the next day
+    )
     const hours = Math.floor(top / 60)
     const minutes = top % 60
-    const end = setHours(setMinutes(new Date(), minutes), hours)
+    const end = set(new Date(), {
+      hours,
+      minutes,
+      seconds: 0,
+    })
 
     setTemporaryTask((prev) => ({
       ...prev,
@@ -65,16 +75,23 @@ const Timeline: FC = () => {
   const handleMouseDown = (
     event: ReactMouseEvent<HTMLDivElement, MouseEvent>
   ) => {
+    if (event.target !== hourTrackRef.current) return
+
     const trackTop = trackRef.current?.getBoundingClientRect().y ?? 0
-    const initial = (Math.abs(trackTop) + event.clientY) / 2
+    const initial =
+      Math.floor((Math.abs(trackTop) + event.clientY) / 2 / 15) * 15
     const hours = Math.floor(initial / 60)
     const minutes = initial % 60
-    const initialDate = setHours(setMinutes(new Date(), minutes), hours)
+    const initialDate = set(new Date(), {
+      hours,
+      minutes,
+      seconds: 0,
+    })
 
     setTemporaryTask({
       id: uuidv4(),
       start: initialDate,
-      end: initialDate,
+      end: addMinutes(initialDate, 15),
       isTemporary: true,
     })
 
@@ -85,7 +102,7 @@ const Timeline: FC = () => {
   return (
     <Container>
       <Track ref={trackRef} onMouseDown={handleMouseDown}>
-        <HourTrack>
+        <HourTrack ref={hourTrackRef}>
           {dayHours.map((h) => (
             <Hour
               key={h}

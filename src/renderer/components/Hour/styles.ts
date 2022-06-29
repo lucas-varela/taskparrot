@@ -9,6 +9,7 @@ export const Container = styled.li<HourContainerProps>`
       isWorkingHour && !isStartingHour
         ? theme.colors.blue.lighter
         : theme.colors.gray.light};
+  pointer-events: none;
 
   &:not(:last-of-type) {
     &::before {
