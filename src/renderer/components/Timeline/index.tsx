@@ -6,10 +6,10 @@ import {
   useState,
 } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { addMinutes, set } from 'date-fns'
+import { addMinutes, differenceInMinutes, set } from 'date-fns'
 import Hour from '../Hour'
 import TaskComponent from '../Task'
-import { useTasks, Task } from '../../contexts/TaskProvider'
+import { useTasks } from '../../contexts/TaskProvider'
 import { Container, Track, Sidebar, EventTrack, HourTrack } from './styles'
 
 const dayHours = [
@@ -24,47 +24,63 @@ const isWorkingHour = (hour: number) => {
   return workingHoursStart <= hour && hour <= workingHoursEnd
 }
 
+type TemporaryTask = {
+  start: Date
+  end: Date
+  initialPosition: number
+  initialDate: Date
+}
+
 const Timeline: FC = () => {
-  // TODO: criar o EventContext, contendo um array de eventos que aparecem na track
-  //  clicar no track adiciona um evento com isTemporary = true, mover o mouse alguns pixels pra baixo muda pra false
-  //  soltar o mouse com isTemporary === true faz o evento ser apagado do array
-  //  isso obriga eventos a terem no mínimo X minutos
-  // TODO: eventos tem algo tipo size=tiny|small|normal pra usar CSS relativo ao tamanho da tarefa
-  // TODO: eventos não podem ter menos que X minutos, tipo 5
   const trackRef = useRef<HTMLDivElement>(null)
   const hourTrackRef = useRef<HTMLOListElement>(null)
-  const temporaryRef = useRef<Partial<Task> | null>(null)
-  const [temporaryTask, setTemporaryTask] = useState<Partial<Task> | null>(null)
+  const temporaryRef = useRef<TemporaryTask | null>(null)
+  const [temporaryTask, setTemporaryTask] = useState<TemporaryTask | null>(null)
   temporaryRef.current = temporaryTask
   const { tasks, addTask } = useTasks()
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
     const trackTop = trackRef.current?.getBoundingClientRect().y ?? 0
-    const top = Math.min(
+    const position = Math.min(
       // We divide the sizes by two since 1 minute equals to 2px in the CSS
-      // ceil(X / 15) * 15 makes the task grow in 15 minutes intervals
-      Math.ceil((Math.abs(trackTop) + event.clientY) / 2 / 15) * 15,
+      // ceil(X / 5) * 5 makes the task grow in 5 minutes intervals
+      Math.ceil((Math.abs(trackTop) + event.clientY) / 2 / 5) * 5,
       1440 // Math.min makes sure the task won't pass 00:00:00 of the next day
     )
-    const hours = Math.floor(top / 60)
-    const minutes = top % 60
-    const end = set(new Date(), {
+
+    const hours = Math.floor(position / 60)
+    const minutes = position % 60
+    const time = set(new Date(), {
       hours,
       minutes,
       seconds: 0,
     })
 
-    setTemporaryTask((prev) => ({
-      ...prev,
-      end,
-      // isTemporary: end - (prev?.start ?? 0) < 30,
-    }))
+    setTemporaryTask((_prev) => {
+      const prev = _prev as TemporaryTask
+
+      return {
+        ...prev,
+        start: position > prev.initialPosition ? prev.start : time,
+        end: position > prev.initialPosition ? time : prev.initialDate,
+      }
+    })
   }, [])
 
   const handleMouseUp = useCallback(() => {
-    addTask({
-      ...(temporaryRef.current as Task),
-    })
+    if (
+      temporaryRef.current &&
+      differenceInMinutes(
+        temporaryRef.current.end,
+        temporaryRef.current.start
+      ) > 0
+    ) {
+      addTask({
+        id: uuidv4(),
+        start: temporaryRef.current.start,
+        end: temporaryRef.current.end,
+      })
+    }
 
     setTemporaryTask(null)
 
@@ -78,8 +94,7 @@ const Timeline: FC = () => {
     if (event.target !== hourTrackRef.current) return
 
     const trackTop = trackRef.current?.getBoundingClientRect().y ?? 0
-    const initial =
-      Math.floor((Math.abs(trackTop) + event.clientY) / 2 / 15) * 15
+    const initial = Math.floor((Math.abs(trackTop) + event.clientY) / 2 / 5) * 5
     const hours = Math.floor(initial / 60)
     const minutes = initial % 60
     const initialDate = set(new Date(), {
@@ -89,10 +104,10 @@ const Timeline: FC = () => {
     })
 
     setTemporaryTask({
-      id: uuidv4(),
+      initialPosition: initial,
+      initialDate,
       start: initialDate,
-      end: addMinutes(initialDate, 15),
-      isTemporary: true,
+      end: addMinutes(initialDate, 5),
     })
 
     window.addEventListener('mousemove', handleMouseMove)
